@@ -39,6 +39,7 @@ jobs:
         - 'pypy-3.8'
         - 'pypy-3.9'
         - 'pypy-3.10'
+        - 'graalpy-24.1'
 
         # Items in here will either be added to the build matrix (if not
         # present), or add new keys to an existing matrix element if all the
@@ -64,9 +65,31 @@ jobs:
           # Inject a couple Windows 2019 runs
           - runs-on: windows-2019
             python: '3.9'
+          # Inject a few runs with different runtime libraries
+          - runs-on: windows-2022
+            python: '3.9'
+            args: >
+              -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+          - runs-on: windows-2022
+            python: '3.10'
+            args: >
+              -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL
+          # This needs a python built with MTd
+          # - runs-on: windows-2022
+          #   python: '3.11'
+          #   args: >
+          #     -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug
+          - runs-on: windows-2022
+            python: '3.12'
+            args: >
+              -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebugDLL
           # Extra ubuntu latest job
           - runs-on: ubuntu-latest
             python: '3.11'
+        exclude:
+          # The setup-python action currently doesn't have graalpy for windows
+          - python: 'graalpy-24.1'
+            runs-on: 'windows-2022'
 
 
     name: "🐍 ${{ matrix.python }} • ${{ matrix.runs-on }} • x64 ${{ matrix.args }}"
